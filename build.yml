@@ -1,0 +1,46 @@
+name: Build DMF TUNE
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        shell: bash
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+      - name: Build VST3
+        shell: bash
+        run: cmake --build build --config Release --target DMF_TUNE_VST3 --parallel
+      - name: List output
+        if: always()
+        shell: bash
+        run: find build/DMF_TUNE_artefacts
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DMF-TUNE-Windows-VST3
+          path: build/DMF_TUNE_artefacts/Release/VST3/
+          if-no-files-found: error
+
+  macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        shell: bash
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=arm64\;x86_64
+      - name: Build VST3
+        shell: bash
+        run: cmake --build build --config Release --target DMF_TUNE_VST3 --parallel
+      - name: List output
+        if: always()
+        shell: bash
+        run: find build/DMF_TUNE_artefacts
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DMF-TUNE-macOS-VST3
+          path: build/DMF_TUNE_artefacts/Release/VST3/
+          if-no-files-found: error
